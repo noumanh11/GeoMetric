@@ -3,13 +3,14 @@ part2_choropleth.py
 ===================
 Part 2 – Choropleth Map and Its Pitfalls
 
-Creates two choropleths of CO₂ per capita using different
-classification schemes (quantiles vs natural breaks) and
-critiques their limitations.
+Creates choropleths of CO₂ per capita using quantiles, natural breaks,
+and equal interval; includes raw vs rate comparison, large-area bias,
+and a four-scheme panel; writes classification metrics and critique text.
 
 Produces:
-  - map_quantiles.png
-  - map_natural_breaks.png
+  - map_quantiles.png, map_natural_breaks.png, map_equal_interval.png
+  - raw_vs_normalised_comparison.png, large_area_bias_annotated.png
+  - four_classification_schemes.png
   - classification_comparison.csv
   - part2_critique.txt
 
@@ -112,6 +113,171 @@ def plot_choropleth(
     )
 
     save_figure(fig, PATHS["fig_part2"] / filename)
+    plt.close(fig)
+
+
+def plot_raw_vs_normalised_comparison(gdf: gpd.GeoDataFrame) -> None:
+    """Side-by-side raw totals vs per-capita (assignment: why rates matter)."""
+    world_proj = reproject_gdf(gdf.copy(), PROJ_KEY)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 7))
+    fig.patch.set_facecolor("white")
+    fig.suptitle(
+        "Raw counts vs per-capita: why normalisation matters",
+        fontsize=15,
+        fontweight="bold",
+    )
+    world_proj[world_proj["co2_total"].isna()].plot(
+        ax=ax1, color="#ddd", linewidth=0.3, edgecolor="#aaa"
+    )
+    world_proj.dropna(subset=["co2_total"]).plot(
+        column="co2_total",
+        ax=ax1,
+        scheme="Quantiles",
+        k=N_CLASSES,
+        cmap=STYLE["sequential_palette"],
+        legend=True,
+        legend_kwds={
+            "title": "Total CO₂ (Mt)",
+            "loc": "lower left",
+            "fontsize": 8,
+        },
+        linewidth=0.3,
+        edgecolor="#555",
+        missing_kwds={"color": "#ddd"},
+    )
+    ax1.set_axis_off()
+    ax1.set_title(
+        "Misleading: raw total CO₂\n(large countries dominate by area/mass)",
+        color="#b91c1c",
+        fontsize=11,
+        fontweight="bold",
+    )
+    world_proj[world_proj[VARIABLE].isna()].plot(
+        ax=ax2, color="#ddd", linewidth=0.3, edgecolor="#aaa"
+    )
+    world_proj.dropna(subset=[VARIABLE]).plot(
+        column=VARIABLE,
+        ax=ax2,
+        scheme="Quantiles",
+        k=N_CLASSES,
+        cmap=STYLE["sequential_palette"],
+        legend=True,
+        legend_kwds={
+            "title": "CO₂ per capita (t)",
+            "loc": "lower left",
+            "fontsize": 8,
+        },
+        linewidth=0.3,
+        edgecolor="#555",
+        missing_kwds={"color": "#ddd"},
+    )
+    ax2.set_axis_off()
+    ax2.set_title(
+        "Preferred: CO₂ per capita\n(intensity per person)",
+        color="#15803d",
+        fontsize=11,
+        fontweight="bold",
+    )
+    plt.tight_layout()
+    save_figure(fig, PATHS["fig_part2"] / "raw_vs_normalised_comparison.png")
+    plt.close(fig)
+
+
+def plot_large_area_bias(gdf: gpd.GeoDataFrame) -> None:
+    """Annotated map discussing large-polygon visual bias."""
+    world_proj = reproject_gdf(gdf.copy(), PROJ_KEY)
+    fig, ax = plt.subplots(figsize=(18, 9))
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor(STYLE["ocean_color"])
+    world_proj.dropna(subset=[VARIABLE]).plot(
+        column=VARIABLE,
+        ax=ax,
+        scheme="Quantiles",
+        k=N_CLASSES,
+        cmap=STYLE["sequential_palette"],
+        legend=True,
+        legend_kwds={
+            "title": "CO₂/capita (t)",
+            "loc": "lower left",
+            "fontsize": 9,
+        },
+        linewidth=0.3,
+        edgecolor="#666",
+        missing_kwds={"color": "#ddd"},
+    )
+    annotations = {
+        "Russia\n(large area, medium intensity)": (7_500_000, 7_000_000),
+        "Canada\n(large area, high intensity)": (-8_500_000, 6_500_000),
+        "Qatar\n(tiny, high intensity)": (5_700_000, 2_800_000),
+        "Gulf states\n(small polygons)": (5_200_000, 2_200_000),
+    }
+    for text, xy in annotations.items():
+        ax.annotate(
+            text,
+            xy=xy,
+            fontsize=8,
+            color="#222",
+            bbox=dict(boxstyle="round,pad=0.3", fc="lightyellow", ec="orange", alpha=0.9),
+        )
+    ax.set_axis_off()
+    add_map_annotations(
+        ax,
+        title="Large-area visual bias in standard choropleths",
+        subtitle="Large regions draw the eye; small high-intensity areas are easy to miss",
+        source="Our World in Data (OWID), 2020",
+        projection_name=PROJ_KEY,
+        year=YEAR,
+    )
+    save_figure(fig, PATHS["fig_part2"] / "large_area_bias_annotated.png")
+    plt.close(fig)
+
+
+def plot_four_classification_schemes(gdf: gpd.GeoDataFrame) -> None:
+    """2×2 panel comparing four classifiers (matches web gallery + assignment table)."""
+    world_proj = reproject_gdf(gdf.copy(), PROJ_KEY)
+    schemes = [
+        ("Quantiles", "Quantiles"),
+        ("NaturalBreaks", "Natural breaks (Jenks)"),
+        ("EqualInterval", "Equal interval"),
+        ("JenksCaspall", "Jenks Caspall"),
+    ]
+    fig, axes = plt.subplots(2, 2, figsize=(18, 12))
+    fig.patch.set_facecolor("white")
+    axes = axes.ravel()
+    for ax, (scheme, label) in zip(axes, schemes):
+        ax.set_facecolor(STYLE["ocean_color"])
+        world_proj[world_proj[VARIABLE].isna()].plot(
+            ax=ax,
+            color=STYLE["missing_data_color"],
+            linewidth=0.2,
+            edgecolor=STYLE["boundary_color"],
+        )
+        world_proj.dropna(subset=[VARIABLE]).plot(
+            column=VARIABLE,
+            ax=ax,
+            scheme=scheme,
+            k=N_CLASSES,
+            cmap=STYLE["sequential_palette"],
+            legend=True,
+            legend_kwds={
+                "title": VAR_LABEL,
+                "fontsize": 6,
+                "loc": "lower left",
+                "fmt": "{:.1f}",
+            },
+            linewidth=0.25,
+            edgecolor=STYLE["boundary_color"],
+            missing_kwds={"color": STYLE["missing_data_color"]},
+        )
+        ax.set_axis_off()
+        ax.set_title(label, fontsize=11)
+    fig.suptitle(
+        f"Classification schemes compared — CO₂ per capita ({YEAR})",
+        fontsize=14,
+        fontweight="bold",
+    )
+    plt.tight_layout()
+    save_figure(fig, PATHS["fig_part2"] / "four_classification_schemes.png")
     plt.close(fig)
 
 
@@ -226,22 +392,32 @@ def run():
 
     gdf = load_data()
 
-    print("\n[1/2] Quantiles choropleth...")
+    print("\n[1/6] Quantiles choropleth...")
     plot_choropleth(gdf, "Quantiles", "Quantiles", "map_quantiles.png")
 
-    print("\n[2/2] Natural Breaks choropleth...")
+    print("\n[2/6] Natural Breaks choropleth...")
     plot_choropleth(
         gdf, "NaturalBreaks", "Natural Breaks (Jenks)", "map_natural_breaks.png"
     )
 
-    print("\n[3/3] Saving classification comparison...")
+    print("\n[3/6] Equal Interval choropleth...")
+    plot_choropleth(
+        gdf, "EqualInterval", "Equal Interval", "map_equal_interval.png"
+    )
+
+    print("\n[4/6] Raw vs normalised + large-area bias + 4-way comparison...")
+    plot_raw_vs_normalised_comparison(gdf)
+    plot_large_area_bias(gdf)
+    plot_four_classification_schemes(gdf)
+
+    print("\n[5/6] Saving classification comparison table...")
     save_classification_comparison(gdf)
 
     out = PATHS["fig_part2"] / "part2_critique.txt"
     out.write_text(CRITIQUE.strip(), encoding="utf-8")
     print(f"   Critique saved: {out.name}")
 
-    print("\n Part 2 complete.")
+    print("\n[6/6] Part 2 complete.")
 
 
 if __name__ == "__main__":
