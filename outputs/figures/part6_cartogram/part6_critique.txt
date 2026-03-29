@@ -1,0 +1,47 @@
+PART 6 – CARTOGRAM CRITIQUE: LAND AREA ≠ IMPORTANCE
+=====================================================
+
+THE PROBLEM WITH STANDARD GEOGRAPHIC MAPS
+------------------------------------------
+On a standard geographic map, Russia occupies 11% of the world's visible land
+area but holds only 1.8% of the world's population. Canada fills a vast swathe
+of North America yet houses 38 million people — less than California alone.
+When we map per-capita statistics on these outlines, the reader's eye is
+inevitably drawn to large polygons, creating a systematic perceptual bias.
+
+In the standard CO₂ per capita map (Map 1), Russia and Canada visually dominate
+even though their per-capita emissions, while significant, are not the highest
+in the world. Qatar, Kuwait, and UAE — tiny polygons — have the world's highest
+per-capita emissions and are nearly invisible.
+
+HOW THE DORLING CARTOGRAM CORRECTS THIS
+-----------------------------------------
+The Dorling cartogram replaces geographic polygons with circles whose AREA
+is proportional to population. Countries with large populations (India, China)
+become large circles regardless of their geographic size. Countries with tiny
+populations (Luxembourg, Qatar) remain small.
+
+This immediately changes the map's message:
+  - China and India dominate visually — accurately reflecting their demographic
+    importance.
+  - Russia and Canada shrink to modest circles.
+  - The colour (CO₂ per capita) now reads correctly: the largest circles (most
+    people) are not the darkest circles (highest per-capita emissions),
+    illustrating that the most populous countries are not necessarily the biggest
+    per-capita emitters.
+
+SIZE vs DATA EFFECT
+--------------------
+The "size vs data effect" refers to the cognitive error where readers interpret
+a large region as having more of whatever is being mapped, regardless of
+normalisation. Even with correct per-capita data, the geographic map fails
+because the reader perceives Russia (large country, medium emissions) as more
+important than Qatar (tiny country, highest emissions).
+
+TRADE-OFFS
+-----------
+Cartograms sacrifice geographic familiarity. Many readers cannot identify
+countries from circles alone — hence the ISO code labels. They are powerful
+for emphasising the CORRECT variable but require more reader effort than
+standard maps. For a general audience, combining both maps side-by-side (as
+in this assignment) is the most pedagogically effective approach.

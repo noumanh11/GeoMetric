@@ -1,0 +1,64 @@
+PART 7 – MAP DESIGN DECISIONS
+==============================
+
+SCENARIO A – PUBLIC HEALTH
+----------------------------
+Chosen map type: CHOROPLETH (normalised disease index by country)
+
+Why choropleth:
+  The variable (disease burden rate) is a normalised country-level statistic —
+  exactly the use case choropleths are designed for. It allows rapid continental
+  comparison (Sub-Saharan Africa vs Western Europe) and is familiar to the
+  health policy audience.
+
+Why not a proportional symbol map:
+  Proportional symbols would show absolute case counts, not rates. Large
+  countries (India, China) would appear most burdened even if their per-capita
+  rates are moderate. Symbols also obscure the spatial extent of high-burden
+  regions, which is critical for policy planning.
+
+Why not a flow map:
+  Disease burden is a stock measure (how sick a region is), not a flow
+  (movement between regions). A flow map would be appropriate for tracking
+  contagion spread, not static burden.
+
+SCENARIO B – URBAN SERVICES
+-----------------------------
+Chosen map type: PROPORTIONAL SYMBOL MAP (airport size = connectivity)
+
+Why proportional symbols:
+  Airports are POINT features. Their connectivity (number of routes) is
+  inherently tied to a specific geographic location, not to a region as a whole.
+  A proportional symbol correctly places the data at the service facility.
+  The visual size immediately communicates service capacity.
+
+Why not a choropleth:
+  Aggregating airport routes by country and filling the country polygon implies
+  that air connectivity is distributed across the entire country, which is
+  meaningless. Nigeria's connectivity is Lagos + Abuja, not everywhere in Nigeria.
+
+Why not a density map:
+  Density maps smooth point data across space — appropriate for diffuse phenomena
+  (population, crime incidents) but wrong for discrete infrastructure nodes.
+
+SCENARIO C – CLIMATE RISK
+---------------------------
+Chosen map type: BIVARIATE CHOROPLETH (hazard × exposure)
+
+Why bivariate:
+  Risk = hazard × exposure. Neither layer alone answers the policy question.
+  A high-hazard but unpopulated area (Sahara) has low risk. A low-hazard but
+  densely populated area (Netherlands coastal lowlands) has moderate risk.
+  Only the combined bivariate encoding correctly identifies high-risk zones:
+  South Asia, coastal West Africa, Bangladesh.
+
+Why not two separate maps:
+  Two maps require the reader to mentally overlay them — a cognitively demanding
+  task that introduces error. The bivariate map performs this overlay visually
+  and instantly communicates the combined risk zones.
+
+Limitation:
+  The 3×3 bivariate colour matrix is hard to decode without the legend. The
+  9 distinct colours exceed the recommended palette size for most readers. For a
+  general audience, a simpler two-variable dot map or side-by-side comparison
+  might be more accessible, at the cost of the combined visual message.

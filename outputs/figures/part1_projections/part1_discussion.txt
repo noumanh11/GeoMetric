@@ -1,0 +1,39 @@
+PART 1 – PROJECTION ANALYSIS DISCUSSION
+========================================
+
+Projection is not a cosmetic choice. Every flat map of the spherical Earth
+requires a transformation that inevitably introduces distortion. Depending on
+the mathematical properties of the projection chosen, that distortion affects
+area, shape (angles), distance, or direction — and crucially, it changes the
+reader's perception of the mapped phenomenon.
+
+1. ALBERS EQUAL-AREA CONIC
+   This projection faithfully preserves the *area* of all regions. Countries
+   and continents appear at their true relative size. As a result, large but
+   sparsely populated regions (Russia, Canada, Australia) look large only
+   because they genuinely are large — not because the projection inflates them.
+   This makes it the most defensible choice for a thematic choropleth where
+   visual area should correspond to real-world area. Its weakness is shape
+   distortion near the edges of the mapped region.
+
+2. LAMBERT CONFORMAL CONIC
+   This projection preserves *local shape* (conformality), meaning angles and
+   small shapes look correct. It is the standard for aeronautical and navigation
+   charts precisely because rhumb lines (constant compass bearing) are easy to
+   draw. However, it significantly exaggerates the *area* of high-latitude
+   regions. On a global Lambert map, Greenland appears dramatically oversized
+   relative to Africa — the opposite of their true ratio.
+
+3. WINKEL TRIPEL
+   The Winkel Tripel is a compromise projection that does not perfectly preserve
+   either area or shape, but minimises overall distortion across both dimensions.
+   The National Geographic Society adopted it as its standard world map in 1998
+   precisely for this reason. It gives a visually balanced impression of the world
+   suitable for general reference and education, even though it is technically
+   inferior to equal-area projections for quantitative comparisons.
+
+CONCLUSION
+   For this assignment's choropleth maps (Parts 2 and 6), the Albers Equal-Area
+   projection is the correct scientific choice. The Lambert is retained for the
+   navigation scenario. The Winkel Tripel is the appropriate default for
+   educational and reference maps where no single attribute dominates.

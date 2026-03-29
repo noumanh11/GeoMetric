@@ -1,0 +1,33 @@
+PART 3 – PROPORTIONAL SYMBOL vs CHOROPLETH COMPARISON
+=======================================================
+
+SYMBOL AREA vs SYMBOL RADIUS
+------------------------------
+Symbol size must be scaled so that AREA is proportional to the data value,
+not radius. If radius were scaled linearly, a country with 4× the traffic
+would appear 16× larger (since area = π r²), grossly exaggerating differences.
+Scaling by area (size = min + k × value) ensures the visual quantity the eye
+perceives — area — correctly encodes the data magnitude.
+
+WHY PROPORTIONAL SYMBOLS ARE BETTER THAN CHOROPLETHS FOR THIS DATA
+--------------------------------------------------------------------
+Airport traffic is a POINT phenomenon: it originates at discrete geographic
+locations, not continuously across polygon areas. A choropleth would aggregate
+traffic by country and fill the entire country polygon — implying that traffic
+is distributed across all of Russia or all of Australia, which is false.
+Proportional symbols place the data exactly at the airport location, preserving
+spatial accuracy.
+
+Furthermore, choropleths require normalisation by area or population. For
+airports, there is no meaningful per-area normalisation: the Maldives airport
+handles huge traffic relative to its tiny land area, but that is not a useful
+comparison. Proportional symbols avoid this forced normalisation entirely.
+
+OVERLAP HANDLING
+-----------------
+With 300+ airports, overlap is inevitable in Europe, Northeast USA, and SE Asia.
+This was addressed by:
+  - Using transparency (alpha=0.5) so overlapping circles remain readable.
+  - Limiting to top 300 airports (reducing clutter).
+  - In the interactive map, using zoom functionality and tooltips so users can
+    explore dense regions at higher zoom levels.

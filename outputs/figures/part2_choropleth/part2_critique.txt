@@ -1,0 +1,48 @@
+PART 2 – CHOROPLETH CRITIQUE
+==============================
+
+WHY RATIO / RATE DATA MUST BE USED INSTEAD OF RAW COUNTS
+---------------------------------------------------------
+A choropleth encodes a variable as a fill colour covering the entire area of
+a region. If raw counts (e.g. total tonnes of CO₂) are mapped, larger countries
+will always appear darker simply because they contain more people, industry, and
+land — not because they are more intensive emitters per capita. China's total
+emissions dwarf Luxembourg's, but Luxembourg's per-capita emissions exceed many
+industrialised countries. Mapping raw counts would systematically mislead the
+reader. Normalisation by population (producing per-capita rates) or area
+(producing density values) is therefore mandatory for choropleth maps.
+
+HOW REGION SIZE AFFECTS INTERPRETATION
+---------------------------------------
+Even with normalised data, large low-population-density regions (Russia, Canada,
+Australia, the Sahara states) dominate the visual field simply because of their
+physical size. The reader's eye is drawn to large coloured polygons, causing
+visual over-weighting of large-but-sparse regions and under-weighting of small
+but populous or intensive regions (the Netherlands, South Korea, Singapore).
+This is the "large area bias" inherent to standard geographic choropleths and
+motivates the use of cartograms (Part 6).
+
+CLASSIFICATION METHOD EFFECTS
+-------------------------------
+Quantiles: Forces equal numbers of countries into each bin. Maximises colour
+contrast and readability but can place countries with very different values into
+the same class, or split a natural cluster across classes.
+
+Natural Breaks (Jenks): Minimises within-class variance. Bins reflect natural
+data clusters, making statistical sense — but bin boundaries shift with every
+new dataset, making cross-map comparison harder.
+
+Equal Interval: Divides the data range into equal-width bins. Intuitive and
+comparable across years, but highly sensitive to outliers: if Qatar emits 30
+t/capita while most countries emit 1–5, the top bin spans a huge range that
+captures only a handful of outliers.
+
+WHEN CHOROPLETHS MISLEAD
+--------------------------
+1. Raw count data mapped directly (see above).
+2. Highly skewed distributions where most countries cluster in one bin.
+3. Comparing regions of radically different geographic sizes.
+4. Categorical data (e.g. political party) mapped with sequential colour ramps
+   implying order or magnitude where none exists.
+5. Missing data countries coloured with a colour from the main ramp rather
+   than a distinct neutral grey.

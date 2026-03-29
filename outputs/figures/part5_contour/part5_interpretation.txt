@@ -1,0 +1,37 @@
+PART 5 – CONTINUOUS FIELD MAPPING INTERPRETATION
+=================================================
+
+WHY CONTOUR/ISOPLETH MAPS SUIT CONTINUOUS FIELDS
+--------------------------------------------------
+Temperature, rainfall, air pressure, and elevation are CONTINUOUS FIELDS:
+every point on Earth has some value, and that value varies smoothly through
+space. An isopleth (contour) map encodes this continuous variation correctly —
+the reader can infer the temperature anywhere on the map, not just at measured
+locations.
+
+By contrast, a choropleth would assign one temperature value to an entire
+country, implying that Pakistan is uniformly one temperature despite spanning
+coastal lowlands and the Karakoram mountains. This is scientifically incorrect
+for continuous physical fields.
+
+INTERPOLATION METHOD: RBF THIN-PLATE SPLINE
+--------------------------------------------
+The Radial Basis Function (thin-plate-spline kernel) was chosen because it:
+  1. Exactly honours the measured values at station locations.
+  2. Produces smooth, visually natural surfaces without requiring a predefined
+     geographic structure.
+  3. Handles the irregular spacing of monitoring stations better than simple
+     grid methods.
+
+LIMITATIONS AND UNRELIABLE ZONES
+----------------------------------
+1. Arctic and Antarctic regions: very few stations → high uncertainty. The
+   interpolation extrapolates based on nearby values, which may not capture
+   true extremes.
+2. Ocean areas: land temperature stations do not measure sea surface temperature.
+   Ocean values in this map are artefacts of interpolation across land stations.
+3. Mountain ranges: elevation creates sharp localised temperature gradients
+   (lapse rate ≈ −6.5°C per 1000 m) that point-based interpolation at this
+   resolution cannot capture faithfully.
+4. Edge effects: RBF can produce "ringing" artefacts near the boundaries of
+   the data domain (poles, date-line wrap).

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoMetric - Geospatial Analytics Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface2: #f1f5f9;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent2: #10b981;
+    --accent3: #f43f5e;
+    --accent4: #8b5cf6;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --chart-bg: #ffffff;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.04), 0 4px 6px -4px rgb(0 0 0 / 0.03);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Outfit', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* ── Header ── */
+  .header {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo { display: flex; align-items: center; gap: 16px; }
+  .logo-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800; color: #ffffff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  .logo-text h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #0f172a; }
+  .logo-text p { font-size: 13px; color: var(--text-muted); margin-top: 2px; font-weight: 400; }
+  .header-badge { display: flex; gap: 10px; align-items: center; }
+  .badge {
+    padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1px solid transparent; transition: transform 0.2s;
+  }
+  .badge:hover { transform: translateY(-2px); }
+  .badge-blue  { color: #1d4ed8; background: #dbeafe; border-color: #bfdbfe; }
+  .badge-green { color: #047857; background: #d1fae5; border-color: #a7f3d0; }
+  .badge-red   { color: #be123c; background: #ffe4e6; border-color: #fecdd3; }
+  .badge-purple{ color: #6d28d9; background: #ede9fe; border-color: #ddd6fe; }
+
+  /* ── Nav tabs ── */
+  .nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px; display: flex; gap: 8px; overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 16px 24px; cursor: pointer; border: none; background: none;
+    color: var(--text-muted); font-size: 14px; font-weight: 600;
+    border-bottom: 3px solid transparent; transition: all 0.2s ease;
+    white-space: nowrap; display: flex; align-items: center; gap: 8px;
+  }
+  .nav-tab:hover { color: var(--accent); background: #f8fafc; }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: #f0f9ff; }
+
+  /* ── Layout ── */
+  .main { padding: 40px; max-width: 1500px; margin: 0 auto; min-height: 800px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeUp 0.5s ease; }
+
+  /* ── KPI cards ── */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 32px; }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
+    box-shadow: var(--shadow-sm); transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .kpi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .kpi-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--accent-color, #3b82f6), #60a5fa);
+  }
+  .kpi-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+  .kpi-value { font-size: 32px; font-weight: 800; color: var(--text); line-height: 1; letter-spacing:-1px; }
+  .kpi-sub   { font-size: 13px; color: var(--text-muted); margin-top: 8px; font-weight: 500;}
+  .kpi-icon  { position: absolute; top: 20px; right: 20px; font-size: 28px; opacity: 0.15; filter: grayscale(1); transition: 0.3s;}
+  .kpi-card:hover .kpi-icon { opacity: 0.8; filter: none; transform: scale(1.1); }
+
+  /* ── Chart grid ── */
+  .chart-grid { display: grid; gap: 24px; }
+  .chart-grid-2 { grid-template-columns: 1fr 1fr; }
+  .chart-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .chart-full   { grid-column: 1 / -1; }
+
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-md);
+    transition: box-shadow 0.3s;
+  }
+  .chart-card:hover { box-shadow: var(--shadow-lg); }
+  .chart-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: center; justify-content: space-between;
+    background: #ffffff;
+  }
+  .chart-title { font-size: 16px; font-weight: 700; color: #1e293b; letter-spacing: -0.3px; }
+  .chart-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 400; }
+  .chart-body { padding: 4px; background: #ffffff; }
+
+  /* ── Controls ── */
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 20px 24px; border-bottom: 1px solid #f1f5f9; background: #fafafa; }
+  .control-group { display: flex; align-items: center; gap: 12px; }
+  .control-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+  select, input[type=range] {
+    background: #ffffff; border: 1px solid #cbd5e1;
+    color: var(--text); border-radius: 8px; padding: 8px 14px;
+    font-size: 13px; cursor: pointer; outline: none; font-weight: 500;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .range-value { font-size: 14px; color: var(--accent); font-weight: 700; min-width: 30px; }
+
+  /* ── Section header ── */
+  .section-header { margin-bottom: 28px; }
+  .section-title  { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: #0f172a; }
+  .section-sub    { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+
+  /* ── Footer ── */
+  .footer {
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 24px 40px; text-align: center;
+    font-size: 13px; color: var(--text-muted); font-weight: 500;
+  }
+
+  /* ── Insight box ── */
+  .insight-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-left: 4px solid #3b82f6; border-radius: 8px; padding: 18px 24px; margin-bottom: 24px;
+    font-size: 14px; color: #1e293b; line-height: 1.6; box-shadow: var(--shadow-sm);
+  }
+  .insight-box strong { color: #1d4ed8; font-weight: 700; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
+    .main { padding: 20px; }
+    .header { padding: 16px 20px; flex-direction: column; gap: 16px; align-items: flex-start; }
+    .nav { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════ -->
+<header class="header">
+  <div class="logo">
+    <img src="../../../asset/geo_metric_logo_transparent.png" alt="GeoMetric Logo" style="height: 54px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+    <div class="logo-text">
+      <h1>GeoMetric</h1>
+      <p>A Full-Stack Geospatial Analytics Platform for Climate &amp; Mobility Intelligence</p>
+    </div>
+  </div>
+  <div class="header-badge">
+    <span class="badge badge-blue">🌍 7 Map Types</span>
+    <span class="badge badge-green">✈ 67K+ Routes</span>
+    <span class="badge badge-red">🌡 100+ Stations</span>
+    <span class="badge badge-purple">📊 Full Pipeline</span>
+  </div>
+</header>
+
+<!-- ═══ NAV ══════════════════════════════════════════════════ -->
+<nav class="nav">
+  <button class="nav-tab active" onclick="switchTab('overview')">🌐 Overview</button>
+  <button class="nav-tab" onclick="switchTab('emissions')">🏭 CO₂ Emissions</button>
+  <button class="nav-tab" onclick="switchTab('airports')">✈ Airport Traffic</button>
+  <button class="nav-tab" onclick="switchTab('flows')">🔀 Route Flows</button>
+  <button class="nav-tab" onclick="switchTab('temperature')">🌡 Temperature</button>
+  <button class="nav-tab" onclick="switchTab('projections')">🗺 Projections</button>
+  <button class="nav-tab" onclick="switchTab('about')">ℹ About</button>
+</nav>
+
+<!-- ═══ MAIN ═════════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- ── OVERVIEW TAB ─────────────────────────────────────── -->
+  <div id="tab-overview" class="tab-panel active">
+    <div class="section-header">
+      <div class="section-title">Global Climate &amp; Mobility Overview</div>
+      <div class="section-sub">Key metrics and insights from the GeoMetric dataset pipeline · Year: 2020</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card" style="--accent-color:#58a6ff">
+        <div class="kpi-icon">🌍</div>
+        <div class="kpi-label">Countries Covered</div>
+        <div class="kpi-value">195</div>
+        <div class="kpi-sub">Natural Earth shapefile</div>
+      </div>
+      <div class="kpi-card" style="--accent-color:#3fb950">
+        <div class="kpi-icon">🏭</div>
+        <div class="kpi-label">Avg CO₂ per Capita</div>
+        <div class="kpi-value">4.7t</div>
+        <div class="kpi-sub">tonnes / person / year (2020)</div>
+      </div>
+      <div class="kpi-card" style="--accent-color:#f78166">
+        <div class="kpi-icon">✈</div>
+        <div class="kpi-label">Airports Mapped</div>
+        <div class="kpi-value">7,698</div>
+        <div class="kpi-sub">OpenFlights database</div>
+      </div>
+      <div class="kpi-card" style="--accent-color:#d2a8ff">
+        <div class="kpi-icon">🔀</div>
+        <div class="kpi-label">Airline Routes</div>
+        <div class="kpi-value">67,663</div>
+        <div class="kpi-sub">Global route network</div>
+      </div>
+      <div class="kpi-card" style="--accent-color:#ffa657">
+        <div class="kpi-icon">🌡</div>
+        <div class="kpi-label">Temp Stations</div>
+        <div class="kpi-value">100</div>
+        <div class="kpi-sub">Global coverage</div>
+      </div>
+      <div class="kpi-card" style="--accent-color:#79c0ff">
+        <div class="kpi-icon">🗺</div>
+        <div class="kpi-label">Map Types Created</div>
+        <div class="kpi-value">14+</div>
+        <div class="kpi-sub">Static + interactive</div>
+      </div>
+    </div>
+
+    <div class="chart-grid chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">CO₂ per Capita by Continent</div>
+            <div class="chart-subtitle">Average emissions per person · 2020</div>
+          </div>
+        </div>
+        <div class="chart-body"><div id="chart-continent-co2" style="height:300px"></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Top 15 Emitters per Capita</div>
+            <div class="chart-subtitle">Countries with highest CO₂ per person</div>
+          </div>
+        </div>
+        <div class="chart-body"><div id="chart-top-emitters" style="height:300px"></div></div>
+      </div>
+      <div class="chart-card chart-full">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">World CO₂ per Capita — Interactive Choropleth</div>
+            <div class="chart-subtitle">Hover any country for details · Colour = emission intensity</div>
+          </div>
+        </div>
+        <div class="chart-body"><div id="chart-world-choropleth" style="height:440px"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EMISSIONS TAB ────────────────────────────────────── -->
+  <div id="tab-emissions" class="tab-panel">
+    <div class="section-header">
+      <div class="section-title">🏭 CO₂ & Greenhouse Gas Emissions</div>
+      <div class="section-sub">Source: Our World in Data (OWID) · 2020</div>
+    </div>
+
+    <div class="insight-box">
+      <strong>Key insight:</strong> Qatar (34.1t), Kuwait (23.1t), and UAE (20.6t) have the world's highest per-capita emissions —
+      yet are nearly invisible on standard geographic maps due to their small land area.
+      The Gulf states collectively emit more per person than any other region.
+    </div>
+
+    <div class="chart-grid chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Emissions Distribution</div><div class="chart-subtitle">Histogram of CO₂ per capita across all countries</div></div></div>
+        <div class="chart-body"><div id="chart-emiss-hist" style="height:300px"></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">GDP vs CO₂ per Capita</div><div class="chart-subtitle">Bubble size = population · colour = continent</div></div></div>
+        <div class="chart-body"><div id="chart-gdp-co2" style="height:300px"></div></div>
+      </div>
+      <div class="chart-card chart-full">
+        <div class="chart-header"><div><div class="chart-title">CO₂ per Capita Ranking — All Countries</div><div class="chart-subtitle">Sorted by emission intensity · 2020</div></div></div>
+        <div class="chart-body"><div id="chart-emiss-rank" style="height:500px"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AIRPORTS TAB ─────────────────────────────────────── -->
+  <div id="tab-airports" class="tab-panel">
+    <div class="section-header">
+      <div class="section-title">✈ Global Airport Traffic</div>
+      <div class="section-sub">Source: OpenFlights.org · Proportional symbol map</div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label class="control-label">Min Routes:</label>
+        <input type="range" id="min-routes-slider" min="1" max="200" value="20" oninput="updateAirportMap()">
+        <span class="range-value" id="min-routes-val">20</span>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Continent:</label>
+        <select id="continent-filter" onchange="updateAirportMap()">
+          <option value="all">All Continents</option>
+          <option value="Europe">Europe</option>
+          <option value="North America">North America</option>
+          <option value="Asia">Asia</option>
+          <option value="South America">South America</option>
+          <option value="Africa">Africa</option>
+          <option value="Oceania">Oceania</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-body"><div id="chart-airports" style="height:520px"></div></div>
+    </div>
+
+    <div class="chart-grid chart-grid-2" style="margin-top:20px">
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Top 20 Airports by Routes</div><div class="chart-subtitle">Busiest hubs globally</div></div></div>
+        <div class="chart-body"><div id="chart-airport-bar" style="height:380px"></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Routes by Country</div><div class="chart-subtitle">Total route count aggregated to country level</div></div></div>
+        <div class="chart-body"><div id="chart-country-routes" style="height:380px"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FLOWS TAB ────────────────────────────────────────── -->
+  <div id="tab-flows" class="tab-panel">
+    <div class="section-header">
+      <div class="section-title">🔀 Global Route Flow Analysis</div>
+      <div class="section-sub">Origin-destination flows · Line width ∝ route count</div>
+    </div>
+
+    <div class="insight-box">
+      <strong>Hub-and-spoke pattern:</strong> The US, UK, Germany, UAE, and France dominate as global connectivity hubs.
+      Dubai (UAE) and London Heathrow act as the world's primary relay airports between East and West corridors.
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-body"><div id="chart-flows" style="height:520px"></div></div>
+    </div>
+  </div>
+
+  <!-- ── TEMPERATURE TAB ──────────────────────────────────── -->
+  <div id="tab-temperature" class="tab-panel">
+    <div class="section-header">
+      <div class="section-title">🌡 Global Temperature Stations</div>
+      <div class="section-sub">Point data for interpolation · Mean annual temperature</div>
+    </div>
+
+    <div class="chart-grid chart-grid-2">
+      <div class="chart-card chart-full">
+        <div class="chart-header"><div><div class="chart-title">Station Locations — Coloured by Temperature</div><div class="chart-subtitle">Each dot = monitoring station · hover for city details</div></div></div>
+        <div class="chart-body"><div id="chart-temp-map" style="height:440px"></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Temperature Distribution</div><div class="chart-subtitle">Histogram of mean annual temperatures</div></div></div>
+        <div class="chart-body"><div id="chart-temp-hist" style="height:300px"></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Hottest &amp; Coldest Stations</div></div></div>
+        <div class="chart-body"><div id="chart-temp-rank" style="height:300px"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROJECTIONS TAB ──────────────────────────────────── -->
+  <div id="tab-projections" class="tab-panel">
+    <div class="section-header">
+      <div class="section-title">🗺 Projection Comparison</div>
+      <div class="section-sub">What each projection preserves and distorts</div>
+    </div>
+
+    <div class="insight-box">
+      <strong>Key principle:</strong> Every projection of the spherical Earth onto a flat surface introduces distortion.
+      The choice of projection is a <em>scientific decision</em>, not a cosmetic one — it changes the reader's
+      perception of area, shape, distance, and direction.
+    </div>
+
+    <div class="chart-grid chart-grid-3">
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Albers Equal-Area</div><div class="chart-subtitle">✅ Preserves area · ⚠ Distorts shape at edges</div></div></div>
+        <div class="chart-body">
+          <div style="padding:20px;font-size:13px;color:var(--text-muted);line-height:1.7">
+            <p><strong style="color:var(--accent2)">Preserves:</strong> Area — all regions shown at true relative size</p><br>
+            <p><strong style="color:var(--accent3)">Distorts:</strong> Shape and angles, especially at map edges</p><br>
+            <p><strong style="color:var(--text)">Best for:</strong> Thematic choropleth maps, regional area comparison</p><br>
+            <p><strong>Used in:</strong> Parts 2, 6 of this project</p>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Lambert Conformal Conic</div><div class="chart-subtitle">✅ Preserves shape · ⚠ Distorts area (poles inflated)</div></div></div>
+        <div class="chart-body">
+          <div style="padding:20px;font-size:13px;color:var(--text-muted);line-height:1.7">
+            <p><strong style="color:var(--accent2)">Preserves:</strong> Local shape (conformality) — angles correct locally</p><br>
+            <p><strong style="color:var(--accent3)">Distorts:</strong> Area — Greenland appears as large as Africa</p><br>
+            <p><strong style="color:var(--text)">Best for:</strong> Navigation, aeronautical charts, weather maps</p><br>
+            <p><strong>Used in:</strong> Part 1 of this project</p>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Winkel Tripel</div><div class="chart-subtitle">✅ Balanced compromise · neither fully preserved</div></div></div>
+        <div class="chart-body">
+          <div style="padding:20px;font-size:13px;color:var(--text-muted);line-height:1.7">
+            <p><strong style="color:var(--accent2)">Preserves:</strong> Balanced — minimises overall distortion</p><br>
+            <p><strong style="color:var(--accent3)">Distorts:</strong> Neither area nor shape perfectly</p><br>
+            <p><strong style="color:var(--text)">Best for:</strong> General educational world maps (used by NGS since 1998)</p><br>
+            <p><strong>Used in:</strong> Parts 3, 4, 6 of this project</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-top:20px">
+      <div class="chart-header"><div><div class="chart-title">Projection Properties Comparison Table</div></div></div>
+      <div class="chart-body">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;padding:16px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:12px 16px;color:var(--text-muted)">Projection</th>
+              <th style="text-align:left;padding:12px 16px;color:var(--text-muted)">Preserves</th>
+              <th style="text-align:left;padding:12px 16px;color:var(--text-muted)">Distorts</th>
+              <th style="text-align:left;padding:12px 16px;color:var(--text-muted)">Best For</th>
+              <th style="text-align:left;padding:12px 16px;color:var(--text-muted)">Used In</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:12px 16px;font-weight:600;color:var(--accent)">Albers Equal-Area</td>
+              <td style="padding:12px 16px;color:var(--accent2)">Area</td>
+              <td style="padding:12px 16px;color:var(--accent3)">Shape at edges, direction</td>
+              <td style="padding:12px 16px">Thematic choropleth maps</td>
+              <td style="padding:12px 16px;color:var(--text-muted)">Parts 2, 6</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:12px 16px;font-weight:600;color:var(--accent)">Lambert Conformal</td>
+              <td style="padding:12px 16px;color:var(--accent2)">Local shape/angles</td>
+              <td style="padding:12px 16px;color:var(--accent3)">Area (poles hugely inflated)</td>
+              <td style="padding:12px 16px">Navigation, aviation charts</td>
+              <td style="padding:12px 16px;color:var(--text-muted)">Part 1</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 16px;font-weight:600;color:var(--accent)">Winkel Tripel</td>
+              <td style="padding:12px 16px;color:var(--accent2)">Compromise balance</td>
+              <td style="padding:12px 16px;color:var(--accent3)">Neither fully area nor shape</td>
+              <td style="padding:12px 16px">General educational maps</td>
+              <td style="padding:12px 16px;color:var(--text-muted)">Parts 3, 4, 6</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ABOUT TAB ─────────────────────────────────────────── -->
+  <div id="tab-about" class="tab-panel">
+    <div class="section-header">
+      <div class="section-title">ℹ About GeoMetric</div>
+    </div>
+    <div class="chart-grid chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Project Overview</div></div></div>
+        <div class="chart-body">
+          <div style="padding:20px;font-size:13px;color:var(--text-muted);line-height:1.8">
+            <p><strong style="color:var(--text)">GeoMetric</strong> is a full-stack geospatial analytics project demonstrating end-to-end data engineering and cartographic design skills.</p><br>
+            <p><strong style="color:var(--text)">7 Map Types:</strong> Choropleth, Proportional Symbols, Flow Map, Contour/Isopleth, Cartogram, Projections, Bivariate</p><br>
+            <p><strong style="color:var(--text)">Bonus Features:</strong> Interactive Dash dashboard, animated temporal choropleth, Moran's I spatial autocorrelation, NetworkX centrality</p><br>
+            <p><strong style="color:var(--text)">Tech Stack:</strong> Python · GeoPandas · Matplotlib · Folium · Plotly · Dash · NetworkX · PySAL · SciPy</p>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><div class="chart-title">Data Sources</div></div></div>
+        <div class="chart-body">
+          <div style="padding:20px;font-size:13px;line-height:2">
+            <div style="display:flex;gap:8px;align-items:center"><span class="badge badge-blue">Shapefile</span><span style="color:var(--text-muted)">Natural Earth — Public Domain</span></div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span class="badge badge-green">Emissions</span><span style="color:var(--text-muted)">Our World in Data — CC BY 4.0</span></div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span class="badge badge-red">Airports</span><span style="color:var(--text-muted)">OpenFlights.org — ODbL</span></div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span class="badge badge-purple">Population</span><span style="color:var(--text-muted)">World Bank — CC BY 4.0</span></div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><span class="badge badge-blue">Temperature</span><span style="color:var(--text-muted)">Berkeley Earth — CC BY 4.0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <strong>GeoMetric</strong> — A Full-Stack Geospatial Analytics Platform for Climate &amp; Mobility Intelligence &nbsp;·&nbsp;
+  Data: OWID · Natural Earth · OpenFlights · World Bank · Berkeley Earth &nbsp;·&nbsp; Built with Python · Plotly
+</footer>
+
+<!-- ═══ JAVASCRIPT ════════════════════════════════════════════ -->
+<script>
+// ── Tab switching ─────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  // Lazy-render charts
+  if (!window.rendered) window.rendered = {};
+  if (!window.rendered[name]) {
+    window.rendered[name] = true;
+    renderTab(name);
+  }
+}
+
+// ── Plotly theme defaults ──────────────────────────────────────
+const THEME = {
+  paper_bgcolor: '#ffffff',
+  plot_bgcolor:  '#ffffff',
+  font: { color: '#0f172a', family: "'Outfit', system-ui, sans-serif", size: 13 },
+  xaxis: { gridcolor: '#f1f5f9', linecolor: '#e2e8f0', zerolinecolor: '#e2e8f0' },
+  yaxis: { gridcolor: '#f1f5f9', linecolor: '#e2e8f0', zerolinecolor: '#e2e8f0' },
+  margin: { t: 20, r: 30, b: 50, l: 60 },
+  colorway: ['#3b82f6','#10b981','#f43f5e','#8b5cf6','#f59e0b','#06b6d4','#84cc16'],
+};
+
+function layout(overrides={}) {
+  return Object.assign({}, THEME, overrides);
+}
+
+const CFG = { responsive: true, displayModeBar: false };
+
+// ── DATA ─────────────────────────────────────────────────────
+// Embedded minimal dataset (representative sample)
+const COUNTRIES = [
+  {iso:"QAT",name:"Qatar",continent:"Asia",co2_pc:34.1,pop:2.9e6,gdp_pc:61000},
+  {iso:"KWT",name:"Kuwait",continent:"Asia",co2_pc:23.1,pop:4.3e6,gdp_pc:35000},
+  {iso:"ARE",name:"UAE",continent:"Asia",co2_pc:20.6,pop:9.9e6,gdp_pc:43000},
+  {iso:"BHR",name:"Bahrain",continent:"Asia",co2_pc:18.9,pop:1.7e6,gdp_pc:24000},
+  {iso:"AUS",name:"Australia",continent:"Oceania",co2_pc:14.8,pop:25.5e6,gdp_pc:54000},
+  {iso:"CAN",name:"Canada",continent:"North America",co2_pc:14.2,pop:38.0e6,gdp_pc:46000},
+  {iso:"SAU",name:"Saudi Arabia",continent:"Asia",co2_pc:13.8,pop:34.8e6,gdp_pc:23000},
+  {iso:"USA",name:"United States",continent:"North America",co2_pc:13.0,pop:331e6,gdp_pc:63000},
+  {iso:"KAZ",name:"Kazakhstan",continent:"Asia",co2_pc:12.8,pop:18.8e6,gdp_pc:9000},
+  {iso:"RUS",name:"Russia",continent:"Europe",co2_pc:11.5,pop:145e6,gdp_pc:12000},
+  {iso:"DEU",name:"Germany",continent:"Europe",co2_pc:7.5,pop:83.2e6,gdp_pc:46000},
+  {iso:"GBR",name:"United Kingdom",continent:"Europe",co2_pc:5.5,pop:67.2e6,gdp_pc:41000},
+  {iso:"JPN",name:"Japan",continent:"Asia",co2_pc:8.5,pop:126e6,gdp_pc:40000},
+  {iso:"CHN",name:"China",continent:"Asia",co2_pc:7.4,pop:1411e6,gdp_pc:11000},
+  {iso:"BRA",name:"Brazil",continent:"South America",co2_pc:2.3,pop:212e6,gdp_pc:8000},
+  {iso:"IND",name:"India",continent:"Asia",co2_pc:1.9,pop:1380e6,gdp_pc:2000},
+  {iso:"IDN",name:"Indonesia",continent:"Asia",co2_pc:2.1,pop:271e6,gdp_pc:4000},
+  {iso:"NGA",name:"Nigeria",continent:"Africa",co2_pc:0.5,pop:206e6,gdp_pc:2000},
+  {iso:"ETH",name:"Ethiopia",continent:"Africa",co2_pc:0.1,pop:115e6,gdp_pc:900},
+  {iso:"COD",name:"DR Congo",continent:"Africa",co2_pc:0.05,pop:90e6,gdp_pc:550},
+  {iso:"FRA",name:"France",continent:"Europe",co2_pc:4.8,pop:67.4e6,gdp_pc:39000},
+  {iso:"ZAF",name:"South Africa",continent:"Africa",co2_pc:6.8,pop:59.3e6,gdp_pc:6000},
+  {iso:"MEX",name:"Mexico",continent:"North America",co2_pc:3.1,pop:126e6,gdp_pc:10000},
+  {iso:"ARG",name:"Argentina",continent:"South America",co2_pc:4.2,pop:45.6e6,gdp_pc:10000},
+  {iso:"PAK",name:"Pakistan",continent:"Asia",co2_pc:0.9,pop:221e6,gdp_pc:1300},
+  {iso:"NOR",name:"Norway",continent:"Europe",co2_pc:6.9,pop:5.4e6,gdp_pc:75000},
+  {iso:"SWE",name:"Sweden",continent:"Europe",co2_pc:3.5,pop:10.4e6,gdp_pc:51000},
+  {iso:"SGP",name:"Singapore",continent:"Asia",co2_pc:8.9,pop:5.9e6,gdp_pc:60000},
+  {iso:"NZL",name:"New Zealand",continent:"Oceania",co2_pc:6.4,pop:5.1e6,gdp_pc:43000},
+  {iso:"TUR",name:"Turkey",continent:"Asia",co2_pc:4.5,pop:84.3e6,gdp_pc:8600},
+];
+
+const AIRPORTS_SAMPLE = [
+  {name:"Hartsfield-Jackson Atlanta",iata:"ATL",city:"Atlanta",country:"United States",lat:33.6,lon:-84.4,routes:220},
+  {name:"Beijing Capital",iata:"PEK",city:"Beijing",country:"China",lat:40.1,lon:116.6,routes:196},
+  {name:"Dubai International",iata:"DXB",city:"Dubai",country:"UAE",lat:25.2,lon:55.4,routes:240},
+  {name:"London Heathrow",iata:"LHR",city:"London",country:"United Kingdom",lat:51.5,lon:-0.5,routes:212},
+  {name:"Tokyo Haneda",iata:"HND",city:"Tokyo",country:"Japan",lat:35.5,lon:139.8,routes:183},
+  {name:"Los Angeles Intl",iata:"LAX",city:"Los Angeles",country:"United States",lat:33.9,lon:-118.4,routes:194},
+  {name:"Paris CDG",iata:"CDG",city:"Paris",country:"France",lat:49.0,lon:2.55,routes:201},
+  {name:"Chicago O'Hare",iata:"ORD",city:"Chicago",country:"United States",lat:42.0,lon:-87.9,routes:188},
+  {name:"Frankfurt",iata:"FRA",city:"Frankfurt",country:"Germany",lat:50.0,lon:8.57,routes:218},
+  {name:"Amsterdam Schiphol",iata:"AMS",city:"Amsterdam",country:"Netherlands",lat:52.3,lon:4.77,routes:208},
+  {name:"Singapore Changi",iata:"SIN",city:"Singapore",country:"Singapore",lat:1.36,lon:103.99,routes:195},
+  {name:"Istanbul",iata:"IST",city:"Istanbul",country:"Turkey",lat:41.3,lon:28.7,routes:230},
+  {name:"Hong Kong Intl",iata:"HKG",city:"Hong Kong",country:"China",lat:22.3,lon:113.9,routes:176},
+  {name:"Seoul Incheon",iata:"ICN",city:"Seoul",country:"South Korea",lat:37.5,lon:126.5,routes:171},
+  {name:"Denver Intl",iata:"DEN",city:"Denver",country:"United States",lat:39.8,lon:-104.7,routes:168},
+  {name:"Sydney Kingsford",iata:"SYD",city:"Sydney",country:"Australia",lat:-33.9,lon:151.2,routes:143},
+  {name:"Guangzhou",iata:"CAN",city:"Guangzhou",country:"China",lat:23.4,lon:113.3,routes:152},
+  {name:"Mumbai",iata:"BOM",city:"Mumbai",country:"India",lat:19.1,lon:72.9,routes:131},
+  {name:"São Paulo",iata:"GRU",city:"São Paulo",country:"Brazil",lat:-23.4,lon:-46.5,routes:128},
+  {name:"Cairo Intl",iata:"CAI",city:"Cairo",country:"Egypt",lat:30.1,lon:31.4,routes:107},
+];
+
+const TEMP_STATIONS = [
+  {city:"Reykjavik",country:"Iceland",lat:64.1,lon:-21.9,temp:5.0},
+  {city:"Fairbanks",country:"USA",lat:64.8,lon:-147.7,temp:-2.8},
+  {city:"Yakutsk",country:"Russia",lat:62.0,lon:129.7,temp:-10.2},
+  {city:"Oslo",country:"Norway",lat:59.9,lon:10.7,temp:6.3},
+  {city:"Moscow",country:"Russia",lat:55.7,lon:37.6,temp:5.8},
+  {city:"London",country:"UK",lat:51.5,lon:-0.1,temp:11.3},
+  {city:"Berlin",country:"Germany",lat:52.5,lon:13.4,temp:9.6},
+  {city:"Paris",country:"France",lat:48.8,lon:2.3,temp:12.1},
+  {city:"Madrid",country:"Spain",lat:40.4,lon:-3.7,temp:15.0},
+  {city:"Cairo",country:"Egypt",lat:30.0,lon:31.2,temp:22.0},
+  {city:"Lagos",country:"Nigeria",lat:6.4,lon:3.4,temp:27.1},
+  {city:"Nairobi",country:"Kenya",lat:-1.3,lon:36.8,temp:18.5},
+  {city:"Mumbai",country:"India",lat:19.1,lon:72.9,temp:27.2},
+  {city:"Delhi",country:"India",lat:28.7,lon:77.2,temp:25.0},
+  {city:"Beijing",country:"China",lat:39.9,lon:116.4,temp:13.1},
+  {city:"Tokyo",country:"Japan",lat:35.7,lon:139.7,temp:15.4},
+  {city:"Bangkok",country:"Thailand",lat:13.7,lon:100.5,temp:28.6},
+  {city:"Singapore",country:"Singapore",lat:1.3,lon:103.8,temp:27.5},
+  {city:"Sydney",country:"Australia",lat:-33.9,lon:151.2,temp:17.7},
+  {city:"New York",country:"USA",lat:40.7,lon:-74.0,temp:13.1},
+  {city:"Los Angeles",country:"USA",lat:34.0,lon:-118.2,temp:18.2},
+  {city:"Chicago",country:"USA",lat:41.9,lon:-87.6,temp:10.3},
+  {city:"Miami",country:"USA",lat:25.8,lon:-80.2,temp:24.5},
+  {city:"Toronto",country:"Canada",lat:43.7,lon:-79.4,temp:9.4},
+  {city:"Mexico City",country:"Mexico",lat:19.4,lon:-99.1,temp:16.0},
+  {city:"Bogota",country:"Colombia",lat:4.7,lon:-74.1,temp:14.0},
+  {city:"Buenos Aires",country:"Argentina",lat:-34.6,lon:-58.4,temp:17.7},
+  {city:"Riyadh",country:"Saudi Arabia",lat:24.7,lon:46.7,temp:26.0},
+  {city:"Dubai",country:"UAE",lat:25.2,lon:55.3,temp:27.0},
+  {city:"Cape Town",country:"South Africa",lat:-33.9,lon:18.4,temp:16.5},
+  {city:"Manaus",country:"Brazil",lat:-3.1,lon:-60.0,temp:26.7},
+  {city:"Anchorage",country:"USA",lat:61.2,lon:-149.9,temp:2.7},
+  {city:"Norilsk",country:"Russia",lat:69.4,lon:88.2,temp:-10.0},
+  {city:"Athens",country:"Greece",lat:38.0,lon:23.7,temp:18.3},
+  {city:"Istanbul",country:"Turkey",lat:41.0,lon:28.9,temp:14.0},
+];
+
+// ── Render functions ──────────────────────────────────────────
+
+function renderTab(name) {
+  switch(name) {
+    case 'overview':   renderOverview();   break;
+    case 'emissions':  renderEmissions();  break;
+    case 'airports':   renderAirports();   break;
+    case 'flows':      renderFlows();      break;
+    case 'temperature':renderTemperature();break;
+  }
+}
+
+function renderOverview() {
+  // Continent bar chart
+  const continents = {};
+  COUNTRIES.forEach(c => {
+    if (!continents[c.continent]) continents[c.continent] = [];
+    continents[c.continent].push(c.co2_pc);
+  });
+  const contNames = Object.keys(continents).sort();
+  const contAvgs  = contNames.map(k => (continents[k].reduce((a,b)=>a+b,0)/continents[k].length).toFixed(2));
+  Plotly.newPlot('chart-continent-co2', [{
+    type: 'bar', x: contNames, y: contAvgs,
+    marker: { color: contAvgs, colorscale: 'YlOrRd', showscale: false },
+    text: contAvgs.map(v => v + ' t'), textposition: 'outside',
+    hovertemplate: '<b>%{x}</b><br>Avg CO₂/capita: %{y} t<extra></extra>'
+  }], layout({ yaxis: {...THEME.yaxis, title: 'CO₂/capita (t)'}, margin: {t:20,r:20,b:60,l:60} }), CFG);
+
+  // Top emitters bar
+  const top15 = [...COUNTRIES].sort((a,b)=>b.co2_pc-a.co2_pc).slice(0,15);
+  Plotly.newPlot('chart-top-emitters', [{
+    type: 'bar', orientation: 'h',
+    x: top15.map(c=>c.co2_pc).reverse(),
+    y: top15.map(c=>c.name).reverse(),
+    marker: { color: top15.map(c=>c.co2_pc).reverse(), colorscale: 'YlOrRd', showscale: false },
+    hovertemplate: '<b>%{y}</b><br>%{x:.1f} t CO₂/capita<extra></extra>'
+  }], layout({ margin: {t:10,r:30,b:40,l:120} }), CFG);
+
+  // World choropleth
+  Plotly.newPlot('chart-world-choropleth', [{
+    type: 'choropleth', locations: COUNTRIES.map(c=>c.iso),
+    z: COUNTRIES.map(c=>c.co2_pc), text: COUNTRIES.map(c=>c.name),
+    colorscale: 'YlOrRd', zmin: 0, zmax: 20,
+    colorbar: { title: 'CO₂/capita (t)', titlefont:{color:'#1e293b'}, tickfont:{color:'#64748b'} },
+    hovertemplate: '<b>%{text}</b><br>CO₂/capita: %{z:.1f} t<extra></extra>'
+  }], layout({
+    geo: { showcoastlines:true, coastlinecolor:'#cbd5e1', showland:true, landcolor:'#f1f5f9',
+           showocean:true, oceancolor:'#f8fafc', showframe:false, projection:{type:'natural earth'},
+           bgcolor:'#ffffff' },
+    margin: {t:10,r:10,b:10,l:10}
+  }), CFG);
+}
+
+function renderEmissions() {
+  // Histogram
+  const vals = COUNTRIES.map(c=>c.co2_pc);
+  Plotly.newPlot('chart-emiss-hist', [{
+    type:'histogram', x:vals, nbinsx:15,
+    marker:{color:'#3b82f6',opacity:0.8,line:{color:'#ffffff',width:1}},
+    hovertemplate:'Range: %{x}<br>Count: %{y}<extra></extra>'
+  }], layout({xaxis:{...THEME.xaxis,title:'CO₂ per Capita (t)'},yaxis:{...THEME.yaxis,title:'Number of Countries'}}), CFG);
+
+  // GDP vs CO2 scatter
+  const conts = [...new Set(COUNTRIES.map(c=>c.continent))];
+  const colors = ['#58a6ff','#3fb950','#f78166','#d2a8ff','#ffa657','#79c0ff'];
+  const traces = conts.map((cont,i) => {
+    const pts = COUNTRIES.filter(c=>c.continent===cont);
+    return {
+      type:'scatter', mode:'markers', name:cont,
+      x: pts.map(c=>c.gdp_pc), y: pts.map(c=>c.co2_pc),
+      marker: { size: pts.map(c=>Math.sqrt(c.pop/1e6)*3+8), color: colors[i], opacity:0.8, line:{color:'white',width:0.5} },
+      text: pts.map(c=>c.name),
+      hovertemplate:'<b>%{text}</b><br>GDP/capita: $%{x:,}<br>CO₂/capita: %{y:.1f}t<extra></extra>'
+    };
+  });
+  Plotly.newPlot('chart-gdp-co2', traces, layout({
+    xaxis:{...THEME.xaxis,title:'GDP per Capita (USD)',type:'log'},
+    yaxis:{...THEME.yaxis,title:'CO₂ per Capita (t)'},
+    legend:{font:{color:'#1e293b'},bgcolor:'rgba(255,255,255,0.8)'},
+    showlegend:true
+  }), CFG);
+
+  // Ranking
+  const sorted = [...COUNTRIES].sort((a,b)=>b.co2_pc-a.co2_pc);
+  Plotly.newPlot('chart-emiss-rank', [{
+    type:'bar', x:sorted.map(c=>c.co2_pc), y:sorted.map(c=>c.name),
+    orientation:'h',
+    marker:{color:sorted.map(c=>c.co2_pc),colorscale:'YlOrRd',showscale:false},
+    hovertemplate:'<b>%{y}</b><br>%{x:.2f} t CO₂/capita<extra></extra>'
+  }], layout({ margin:{t:10,r:40,b:40,l:140}, height:480,
+    xaxis:{...THEME.xaxis,title:'CO₂ per Capita (t)'},
+    yaxis:{...THEME.yaxis,autorange:'reversed'}
+  }), CFG);
+}
+
+let airportData = [...AIRPORTS_SAMPLE];
+function renderAirports() {
+  updateAirportMap();
+  // Top 20 bar
+  const top20 = [...AIRPORTS_SAMPLE].sort((a,b)=>b.routes-a.routes);
+  Plotly.newPlot('chart-airport-bar', [{
+    type:'bar', x:top20.map(a=>a.routes), y:top20.map(a=>a.iata+'<br>'+a.city),
+    orientation:'h',
+    marker:{color:top20.map(a=>a.routes),colorscale:'Plasma',showscale:false},
+    hovertemplate:'<b>%{y}</b><br>Routes: %{x}<extra></extra>'
+  }], layout({margin:{t:10,r:20,b:40,l:120},yaxis:{...THEME.yaxis,autorange:'reversed'}}), CFG);
+
+  // Country routes
+  const byCountry = {};
+  AIRPORTS_SAMPLE.forEach(a => byCountry[a.country] = (byCountry[a.country]||0) + a.routes);
+  const cSorted = Object.entries(byCountry).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  Plotly.newPlot('chart-country-routes', [{
+    type:'bar', x:cSorted.map(c=>c[0]), y:cSorted.map(c=>c[1]),
+    marker:{color:cSorted.map(c=>c[1]),colorscale:'Blues',showscale:false},
+    hovertemplate:'<b>%{x}</b><br>Total routes: %{y}<extra></extra>'
+  }], layout({xaxis:{...THEME.xaxis,tickangle:-30},yaxis:{...THEME.yaxis,title:'Total Routes'}}), CFG);
+}
+
+function updateAirportMap() {
+  const minR = parseInt(document.getElementById('min-routes-slider').value);
+  document.getElementById('min-routes-val').textContent = minR;
+  const contFilter = document.getElementById('continent-filter').value;
+  let data = AIRPORTS_SAMPLE.filter(a => a.routes >= minR);
+  const maxR = Math.max(...data.map(a=>a.routes));
+
+  Plotly.newPlot('chart-airports', [{
+    type:'scattergeo', mode:'markers',
+    lat: data.map(a=>a.lat), lon: data.map(a=>a.lon),
+    marker: {
+      size: data.map(a => 6 + (a.routes/maxR)*28),
+      color: data.map(a=>a.routes), colorscale:'Plasma', showscale:true,
+      colorbar:{title:'Routes',titlefont:{color:'#1e293b'},tickfont:{color:'#64748b'}},
+      opacity:0.8, line:{color:'#ffffff',width:0.5}
+    },
+    text: data.map(a=>a.name),
+    customdata: data.map(a=>[a.city,a.country,a.iata,a.routes]),
+    hovertemplate:'<b>%{text}</b> (%{customdata[2]})<br>%{customdata[1]}<br>Routes: %{customdata[3]}<extra></extra>'
+  }], layout({
+    geo:{ showcoastlines:true,coastlinecolor:'#cbd5e1',showland:true,landcolor:'#f1f5f9',
+          showocean:true,oceancolor:'#f8fafc',showframe:false,
+          projection:{type:'natural earth'},bgcolor:'#ffffff' },
+    margin:{t:10,r:10,b:10,l:10}
+  }), CFG);
+}
+
+function renderFlows() {
+  const flows = [
+    {src:"ATL",dst:"LAX",srcLat:33.6,srcLon:-84.4,dstLat:33.9,dstLon:-118.4,n:12},
+    {src:"LHR",dst:"DXB",srcLat:51.5,srcLon:-0.5,dstLat:25.2,dstLon:55.4,n:15},
+    {src:"CDG",dst:"FRA",srcLat:49.0,srcLon:2.55,dstLat:50.0,dstLon:8.57,n:18},
+    {src:"PEK",dst:"HKG",srcLat:40.1,srcLon:116.6,dstLat:22.3,dstLon:113.9,n:10},
+    {src:"ORD",dst:"ATL",srcLat:42.0,srcLon:-87.9,dstLat:33.6,dstLon:-84.4,n:14},
+    {src:"DXB",dst:"SIN",srcLat:25.2,srcLon:55.4,dstLat:1.36,dstLon:104.0,n:11},
+    {src:"LHR",dst:"JFK",srcLat:51.5,srcLon:-0.5,dstLat:40.6,dstLon:-73.8,n:16},
+    {src:"IST",dst:"FRA",srcLat:41.3,srcLon:28.7,dstLat:50.0,dstLon:8.57,n:13},
+    {src:"AMS",dst:"LHR",srcLat:52.3,srcLon:4.77,dstLat:51.5,dstLon:-0.5,n:17},
+    {src:"SIN",dst:"HKG",srcLat:1.36,srcLon:104.0,dstLat:22.3,dstLon:113.9,n:9},
+  ];
+  const maxN = Math.max(...flows.map(f=>f.n));
+  const traces = [];
+  flows.forEach(f => {
+    const w = 0.5 + (f.n/maxN)*4;
+    traces.push({
+      type:'scattergeo', mode:'lines',
+      lat:[f.srcLat,f.dstLat,null], lon:[f.srcLon,f.dstLon,null],
+      line:{width:w,color:`rgba(88,166,255,${0.3+f.n/maxN*0.6})`},
+      hovertemplate:`<b>${f.src} ↔ ${f.dst}</b><br>Routes: ${f.n}<extra></extra>`,
+      showlegend:false
+    });
+  });
+  // Airport dots
+  const uniq = {};
+  flows.forEach(f=>{uniq[f.src]={lat:f.srcLat,lon:f.srcLon};uniq[f.dst]={lat:f.dstLat,lon:f.dstLon};});
+  traces.push({
+    type:'scattergeo', mode:'markers', name:'Airports',
+    lat:Object.values(uniq).map(v=>v.lat),
+    lon:Object.values(uniq).map(v=>v.lon),
+    text:Object.keys(uniq),
+    marker:{size:8,color:'#f78166',line:{color:'white',width:0.8}},
+    hovertemplate:'<b>%{text}</b><extra></extra>',
+    showlegend:false
+  });
+
+  Plotly.newPlot('chart-flows', traces, layout({
+    geo:{showcoastlines:true,coastlinecolor:'#cbd5e1',showland:true,landcolor:'#f1f5f9',
+         showocean:true,oceancolor:'#f8fafc',showframe:false,
+         projection:{type:'natural earth'},bgcolor:'#ffffff'},
+    margin:{t:10,r:10,b:10,l:10},
+    title:{text:'Top 10 Global Airline Route Pairs — Line width ∝ route count',font:{color:'#0f172a',size:13},x:0.01}
+  }), CFG);
+}
+
+function renderTemperature() {
+  // Map
+  Plotly.newPlot('chart-temp-map', [{
+    type:'scattergeo', mode:'markers',
+    lat:TEMP_STATIONS.map(s=>s.lat), lon:TEMP_STATIONS.map(s=>s.lon),
+    marker:{
+      size:12, color:TEMP_STATIONS.map(s=>s.temp),
+      colorscale:'RdYlBu', reversescale:true, cmin:-15, cmax:35,
+      showscale:true, colorbar:{title:'°C',titlefont:{color:'#1e293b'},tickfont:{color:'#64748b'}},
+      opacity:0.9, line:{color:'#ffffff',width:0.8}
+    },
+    text:TEMP_STATIONS.map(s=>s.city),
+    customdata:TEMP_STATIONS.map(s=>[s.country,s.temp]),
+    hovertemplate:'<b>%{text}</b>, %{customdata[0]}<br>Temp: %{customdata[1]:.1f}°C<extra></extra>'
+  }], layout({
+    geo:{showcoastlines:true,coastlinecolor:'#cbd5e1',showland:true,landcolor:'#f1f5f9',
+         showocean:true,oceancolor:'#f8fafc',showframe:false,
+         projection:{type:'natural earth'},bgcolor:'#ffffff'},
+    margin:{t:10,r:10,b:10,l:10}
+  }), CFG);
+
+  // Histogram
+  Plotly.newPlot('chart-temp-hist', [{
+    type:'histogram', x:TEMP_STATIONS.map(s=>s.temp), nbinsx:12,
+    marker:{color:TEMP_STATIONS.map(s=>s.temp),colorscale:'RdYlBu',reversescale:true,
+            line:{color:'#ffffff',width:1}},
+    hovertemplate:'Temp range: %{x}°C<br>Stations: %{y}<extra></extra>'
+  }], layout({xaxis:{...THEME.xaxis,title:'Mean Annual Temperature (°C)'},yaxis:{...THEME.yaxis,title:'Number of Stations'}}), CFG);
+
+  // Ranking bar
+  const sorted = [...TEMP_STATIONS].sort((a,b)=>b.temp-a.temp);
+  const top10  = sorted.slice(0,10);
+  const bot10  = sorted.slice(-10).reverse();
+  const combined = [...top10, ...bot10];
+  Plotly.newPlot('chart-temp-rank', [{
+    type:'bar', x:combined.map(s=>s.temp), y:combined.map(s=>s.city+', '+s.country),
+    orientation:'h',
+    marker:{color:combined.map(s=>s.temp),colorscale:'RdYlBu',reversescale:true,showscale:false},
+    hovertemplate:'<b>%{y}</b><br>%{x:.1f}°C<extra></extra>'
+  }], layout({margin:{t:10,r:40,b:40,l:160},yaxis:{...THEME.yaxis,autorange:'reversed'}}), CFG);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+window.rendered = { overview: false };
+renderOverview();
+window.rendered.overview = true;
+</script>
+</body>
+</html>

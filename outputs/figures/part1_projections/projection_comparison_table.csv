@@ -1,0 +1,4 @@
+Projection,Preserves,Distorts,Best For,Recommended Use
+Albers Equal-Area Conic,Area,"Shape (at edges), direction",Thematic comparison by area,Thematic area comparison (choropleths)
+Lambert Conformal Conic,Shape (angles/conformality) locally,Area (inflated at poles),"Navigation, aeronautical charts",Navigation & aeronautical charts
+Winkel Tripel,Compromise — minimises overall distortion,Neither fully area nor fully conformal,General educational world maps (used by NGS),General educational world maps

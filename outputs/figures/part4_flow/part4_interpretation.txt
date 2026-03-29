@@ -1,0 +1,42 @@
+PART 4 – FLOW MAP INTERPRETATION
+==================================
+
+HUB-AND-SPOKE STRUCTURE
+------------------------
+The global airline network exhibits a clear hub-and-spoke pattern. A small
+number of countries (USA, UK, Germany, UAE, France) act as mega-hubs with
+extremely high betweenness centrality — meaning most international routes pass
+through or connect to these countries. Dubai (UAE) and London (UK) serve as
+dominant transit hubs between Europe, Asia, and Africa.
+
+GEOGRAPHIC CORRIDORS
+---------------------
+Three major air corridors emerge from the flow map:
+  1. North Atlantic: USA  UK/Europe (highest volume)
+  2. Europe–Asia: UK/Germany  China/India/Southeast Asia
+  3. Middle East pivot: UAE acting as a relay between East and West
+
+FLOW ENCODING DECISIONS
+------------------------
+Line width was chosen to encode volume (number of routes) because width is
+a pre-attentive visual attribute — the eye detects it instantly without
+requiring active comparison. Colour (plasma ramp) adds a second redundant
+encoding that reinforces the width signal and aids readers with colour vision
+that is stronger for hue than for line weight.
+
+Curved arcs (arc3 style) were used instead of straight lines because great
+circle paths between distant countries naturally curve, and the arc style
+reduces visual crossing and ambiguity between overlapping flows.
+
+TOP-N FILTER
+-------------
+Showing only the top 40 country-pair flows eliminates hundreds of sparse minor
+connections that would otherwise create an unreadable hairball. The threshold
+was chosen to retain all visually distinct corridors while keeping the map legible.
+
+NET FLOW AND CENTRALITY
+------------------------
+The weighted degree centrality analysis reveals which countries are most
+connected in the global network. The eigenvector centrality measure identifies
+countries that are connected not just to many partners but to important partners —
+the equivalent of Google PageRank for the airline network.

@@ -1,0 +1,18 @@
+GLOBAL MORAN'S I — CO₂ per Capita
+====================================
+Moran's I statistic : 0.4809
+Expected I (random) : -0.0059
+Variance            : 0.003988
+z-score             : 7.7085
+p-value (normal)    : 0.000000
+
+INTERPRETATION
+--------------
+Moran's I ranges from -1 (perfect dispersion) to +1 (perfect clustering).
+A value of 0.481 with p = 0.0000 indicates:
+SIGNIFICANT POSITIVE spatial autocorrelation — similar CO₂ values cluster geographically.
+
+High-emission countries tend to be spatially adjacent to other high-emission
+countries (e.g. the Gulf states cluster; sub-Saharan low-emission countries cluster).
+This has implications for regional climate policy — targeting geographic clusters
+may be more efficient than country-by-country approaches.
