@@ -1,0 +1,30 @@
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Top-level directory layout of the GeoMetric repository.}}{9}{figure.caption.6}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces End-to-end data-flow from external sources through processing to PNG figures and interactive HTML outputs. All intermediate artefacts live in \texttt {data/processed/}.}}{11}{figure.caption.7}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces CO\textsubscript {2} per capita in \textbf {Albers Equal-Area}. Relative country areas are preserved, enabling a fair visual comparison of emission magnitudes. Shape distortion increases near the poles.}}{13}{figure.caption.9}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Same variable in \textbf {Lambert Conformal Conic}. Coastal outlines are locally accurate (shape preserved), but area comparisons between tropical and polar countries are unreliable.}}{14}{figure.caption.10}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces \textbf {Winkel Tripel} compromise projection, used by the National Geographic Society for world reference maps. Overall distortion is minimised; neither area nor shape is perfectly preserved.}}{15}{figure.caption.11}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Four-panel comparison of choropleth classification schemes applied to CO\textsubscript {2} per capita. Quantiles and Jenks natural breaks produce markedly different country groupings from identical underlying data.}}{17}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Quantile choropleth of CO\textsubscript {2} per capita (five classes). Each class holds the same number of countries; high-emitting outliers are absorbed into the top quintile without visual distinction.}}{18}{figure.caption.13}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Proportional symbol map of global airport connectivity. Circle area is proportional to outbound route count (area scaling). Robinson projection; transparency ($\alpha = 0.55$) reduces overplotting at dense European and East Asian hubs.}}{19}{figure.caption.14}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Flow map of the busiest country-pair airline corridors. Line width encodes normalised route count; colour hue distinguishes outbound from inbound balance. The USA--Europe and intra-Asia corridors dominate.}}{21}{figure.caption.15}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Raw temperature station locations coloured by mean annual temperature. Spatial clustering over North America and Europe is evident; coverage gaps persist over ocean interiors and Antarctica.}}{23}{figure.caption.17}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces Interpolated temperature surface with isopleth contours (diverging colour ramp centred at 10\textdegree {}C). Hatched regions indicate where station density is insufficient to justify interpolation confidence.}}{24}{figure.caption.18}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {8.1}{\ignorespaces Side-by-side comparison of the standard geographic map and the Dorling cartogram. The cartogram eliminates land-area dominance as a visual confound.}}{25}{figure.caption.19}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {9.1}{\ignorespaces \textbf {Scenario A: Public health risk.} Choropleth of a health-vulnerability index overlaid with proportional symbols for hospital capacity. Sequential red ramp emphasises severity; symbol size encodes healthcare access deficit. Intended audience: policy-makers allocating emergency health resources.}}{26}{figure.caption.20}%
+\contentsline {figure}{\numberline {9.2}{\ignorespaces \textbf {Scenario B: Urban service accessibility.} Multi-layer map combining administrative boundaries, transport network buffers, and point symbols for service facilities. Intended audience: urban planners identifying coverage gaps.}}{27}{figure.caption.21}%
+\contentsline {figure}{\numberline {9.3}{\ignorespaces \textbf {Scenario C: Climate risk index.} Bivariate encoding combines CO\textsubscript {2} exposure (hue) with adaptive capacity (lightness), producing a $3{\times }3$ legend matrix. Countries with high exposure \emph {and} low capacity occupy the darkest, most saturated cells. Intended audience: climate finance institutions.}}{28}{figure.caption.22}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {B.1}{\ignorespaces Commands to generate all figures and compile this report to PDF.}}{36}{figure.caption.25}%

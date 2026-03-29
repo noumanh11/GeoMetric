@@ -1,0 +1,45 @@
+\contentsline {chapter}{Abstract}{1}{chapter*.1}%
+\contentsline {chapter}{List of Figures}{5}{chapter*.3}%
+\contentsline {chapter}{List of Tables}{6}{chapter*.4}%
+\contentsline {chapter}{\numberline {1}Introduction}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Project Objectives}{7}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Technical Stack}{8}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Minimum Technical Requirements}{8}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Repository Structure}{9}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Part~0 --- Dataset Collection and Documentation}{10}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Dataset Inventory}{10}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Data-Flow Architecture}{11}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Joins and Preprocessing}{11}{section.2.3}%
+\contentsline {chapter}{\numberline {3}Part~1 --- Projection Challenge}{12}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Projections Compared}{12}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Map Outputs}{13}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Key Finding}{15}{section.3.3}%
+\contentsline {chapter}{\numberline {4}Part~2 --- Choropleth Mapping and Pitfalls}{16}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Classification Schemes}{16}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Normalisation Critique}{18}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Large-Area Visual Bias}{18}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Part~3 --- Proportional Symbol Map}{19}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Data and Scaling}{19}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Interactive Complement}{20}{section.5.2}%
+\contentsline {chapter}{\numberline {6}Part~4 --- Flow Map and Network Analysis}{21}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Flow Construction}{21}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Network Analysis via NetworkX}{22}{section.6.2}%
+\contentsline {chapter}{\numberline {7}Part~5 --- Continuous Field Mapping}{23}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Interpolation Methods}{23}{section.7.1}%
+\contentsline {chapter}{\numberline {8}Part~6 --- Cartogram and Area Correction}{25}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Standard Map versus Dorling Cartogram}{25}{section.8.1}%
+\contentsline {chapter}{\numberline {9}Part~7 --- Scenario-Based Map Design}{26}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Scenario~A --- Public Health Risk}{26}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Scenario~B --- Urban Service Accessibility}{27}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Scenario~C --- Climate Risk Index}{28}{section.9.3}%
+\contentsline {chapter}{\numberline {10}Bonus --- Interactive Outputs and Spatial Statistics}{29}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Plotly Dash Dashboard}{29}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Temporal Choropleth Animation}{29}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Moran's\,I and LISA Spatial Autocorrelation}{29}{section.10.3}%
+\contentsline {chapter}{\numberline {11}Reproducibility and Pipeline Management}{30}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Configuration System}{30}{section.11.1}%
+\contentsline {section}{\numberline {11.2}Pipeline Commands}{31}{section.11.2}%
+\contentsline {chapter}{\numberline {12}Conclusion}{32}{chapter.12}%
+\contentsline {chapter}{References}{33}{Item.17}%
+\contentsline {chapter}{\numberline {A}Output File Manifest}{34}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Compilation Instructions}{36}{appendix.B}%
