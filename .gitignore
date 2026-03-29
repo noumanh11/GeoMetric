@@ -1,64 +1,47 @@
+# Virtual environments
+.venv/
+.geovenv/
+venv/
+env/
+
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
+*$py.class
+*.so
+.Python
 *.egg-info/
+.eggs/
 dist/
 build/
-.eggs/
-.Python
 
-# Virtual environments
-.venv/
-venv/
-env/
-ENV/
-.geovenv/
+# Jupyter
+.ipynb_checkpoints/
 
-# Data files (large — track with Git LFS or exclude entirely)
-data/raw/**/*.zip
-data/raw/**/*.tar.gz
-data/raw/**/*.nc
-data/raw/**/airports.dat
-data/raw/**/routes.dat
-data/raw/**/owid-co2-data.csv
-data/raw/**/world_population.csv
-data/cache/
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
 
-# Keep marker files in raw data
-!data/raw/**/.downloaded
-
-# Outputs (regeneratable — optionally exclude)
-outputs/
-
-# OS files
+# IDE / OS
+.idea/
+.vscode/
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# IDEs / editors
-.vscode/
-.idea/
-*.swp
-*.swo
+# Project-generated outputs (keep structure locally; do not commit large binaries)
+data/raw/
+data/processed/
+data/cache/
 
-# Environment variables
-.env
-.env.local
-.env.example
+# Large generated assets (uncomment if you prefer not to track figures)
+# outputs/figures/
+# outputs/interactive/
+
+# Temporary exports
+_tmp_cell.txt
+_tmp_cells.txt
 
 # Logs
 *.log
-logs/
-flake8_output.txt
-
-# Report drafts
-report/drafts/
-
-# Large binary outputs (keep PNGs but not raw shapefiles)
-*.shp
-*.dbf
-*.shx
-*.prj
-*.cpg
-*.qpj
