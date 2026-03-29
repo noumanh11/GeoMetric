@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2a3340" />
+    <meta name="color-scheme" content="dark" />
+    <title>GeoMetric | Unified Climate &amp; Mobility Atlas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Main navigation">
+        <div class="sidebar-brand">
+          <img id="nav-logo" src="../asset/geo_metric_logo_transparent.png" alt="" width="44" height="44" />
+          <div>
+            <h1>GeoMetric</h1>
+            <span>Unified web atlas</span>
+          </div>
+        </div>
+        <div class="nav-section">Start</div>
+        <a class="nav-link" href="#home">Overview</a>
+        <a class="nav-link" href="#project">Project story</a>
+        <a class="nav-link" href="#explorer">Map explorer</a>
+        <a class="nav-link" href="#preprocessing-report">Data preprocessing</a>
+        <div class="nav-section">Parts</div>
+        <a class="nav-link" href="#part1">1 · Projections</a>
+        <a class="nav-link" href="#part2">2 · Choropleth</a>
+        <a class="nav-link" href="#part3">3 · Proportional</a>
+        <a class="nav-link" href="#part4">4 · Flow</a>
+        <a class="nav-link" href="#part5">5 · Contours</a>
+        <a class="nav-link" href="#part6">6 · Cartogram</a>
+        <a class="nav-link" href="#part7">7 · Scenarios</a>
+        <div class="nav-section">More</div>
+        <a class="nav-link" href="#bonus">Bonus · Moran</a>
+        <a class="nav-link" href="#interactive-embeds">Dashboards &amp; animation</a>
+      </aside>
+
+      <div class="main">
+        <header class="hero" id="home">
+          <div class="hero-inner">
+            <div>
+              <h2>Global climate &amp; mobility, one interface</h2>
+              <p class="hero-lead">
+                This site combines every static figure from the GeoMetric pipeline,
+                CSV and text outputs, Plotly / Folium / Dash exports, and a new
+                open <strong>Leaflet + OpenStreetMap</strong> explorer driven by the
+                same merged country and mobility layers.
+              </p>
+              <div class="hero-badge-row">
+                <span class="badge"><strong>7</strong> thematic parts</span>
+                <span class="badge"><strong>Leaflet</strong> · OSM tiles</span>
+                <span class="badge"><strong>Natural Earth</strong> choropleth</span>
+                <span class="badge">Serve from repo root (see footer)</span>
+              </div>
+            </div>
+            <div class="hero-art">
+              <img
+                id="story-logo"
+                src="../asset/geo_metric_logo_transparent.png"
+                alt="GeoMetric logo"
+              />
+            </div>
+          </div>
+        </header>
+
+        <section class="content-section" id="project">
+          <div class="section-head">
+            <h3>Project story</h3>
+            <p>
+              Three vignettes introduce how data, cartography, and interactivity
+              fit together. Images load from <code>asset/</code> (logo plus
+              <code>pic1</code>–<code>pic3</code>).
+            </p>
+          </div>
+          <div class="story-grid" id="story-grid"></div>
+        </section>
+
+        <section class="content-section" id="preprocessing-report">
+          <div class="section-head">
+            <h3>Data preprocessing &amp; engineering</h3>
+            <p>
+              Pipeline documentation for how raw datasets become the merged layers used in maps and
+              dashboards: boundaries, emissions, mobility, climate, and more.
+              <a href="../docs/Data_Preprocessing_Report.html" target="_blank" rel="noopener noreferrer">Open full report in a new tab →</a>
+            </p>
+          </div>
+          <div class="embed-wrap embed-wrap--report">
+            <div class="embed-header">Global Data Preprocessing &amp; Engineering Report</div>
+            <iframe
+              title="Data preprocessing and engineering report"
+              src="../docs/Data_Preprocessing_Report.html"
+              loading="lazy"
+            ></iframe>
+          </div>
+        </section>
+
+        <section class="content-section" id="explorer">
+          <div class="section-head">
+            <h3>Interactive map explorer</h3>
+            <p>
+              Choropleth countries use merged attributes from
+              <code>dashboard_data.js</code> (same source as the Plotly dashboard).
+              Toggle layers for airports, sampled flows, and temperature stations.
+              Base maps: <strong>OpenStreetMap</strong> and Carto Dark (both use OSM data).
+            </p>
+          </div>
+          <div class="map-explorer">
+            <div id="leaflet-map" role="region" aria-label="Interactive world map"></div>
+            <div class="map-controls">
+              <label for="metric-select">Choropleth field</label>
+              <select id="metric-select">
+                <option value="co2_per_capita">CO₂ per capita (t)</option>
+                <option value="co2_total">CO₂ total (Mt)</option>
+                <option value="total_ghg">Total GHG</option>
+                <option value="population">Population</option>
+                <option value="gdp_per_capita">GDP per capita</option>
+              </select>
+              <button type="button" id="fit-world">Reset view</button>
+              <p class="map-help">
+                Pan and zoom. Use the layer control (top-right) to switch basemaps
+                and overlay airports, flows, or stations. Country polygons:
+                Natural Earth 110m via GitHub (network required once).
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="content-section" id="part1">
+          <div class="section-head">
+            <h3>Part 1 — Projections</h3>
+            <p>Three projections of CO₂ per capita plus comparison table and narrative.</p>
+          </div>
+          <div class="figure-grid" id="figures-part1"></div>
+          <div id="csv-part1"></div>
+          <div id="text-part1"></div>
+        </section>
+
+        <section class="content-section" id="part2">
+          <div class="section-head">
+            <h3>Part 2 — Choropleth classification</h3>
+            <p>Quantiles vs natural breaks; classification metrics in CSV.</p>
+          </div>
+          <div class="figure-grid" id="figures-part2"></div>
+          <div id="csv-part2"></div>
+          <div id="text-part2"></div>
+        </section>
+
+        <section class="content-section" id="part3">
+          <div class="section-head">
+            <h3>Part 3 — Proportional symbols</h3>
+            <p>Static figure and embedded Folium HTML export.</p>
+          </div>
+          <div class="figure-grid" id="figures-part3"></div>
+          <div id="embed-part3"></div>
+          <div id="text-part3"></div>
+        </section>
+
+        <section class="content-section" id="part4">
+          <div class="section-head">
+            <h3>Part 4 — Flow map</h3>
+            <p>Airline flows and network summary statistics.</p>
+          </div>
+          <div class="figure-grid" id="figures-part4"></div>
+          <div id="csv-part4"></div>
+          <div id="text-part4"></div>
+        </section>
+
+        <section class="content-section" id="part5">
+          <div class="section-head">
+            <h3>Part 5 — Temperature &amp; isopleths</h3>
+            <p>Stations and interpolated contours.</p>
+          </div>
+          <div class="figure-grid" id="figures-part5"></div>
+          <div id="text-part5"></div>
+        </section>
+
+        <section class="content-section" id="part6">
+          <div class="section-head">
+            <h3>Part 6 — Cartogram</h3>
+            <p>Geographic layout vs Dorling cartogram.</p>
+          </div>
+          <div class="figure-grid" id="figures-part6"></div>
+          <div id="text-part6"></div>
+        </section>
+
+        <section class="content-section" id="part7">
+          <div class="section-head">
+            <h3>Part 7 — Scenarios</h3>
+            <p>Designed map scenarios with documented choices.</p>
+          </div>
+          <div class="figure-grid" id="figures-part7"></div>
+          <div id="text-part7"></div>
+        </section>
+
+        <section class="content-section" id="bonus">
+          <div class="section-head">
+            <h3>Bonus — Moran’s I &amp; LISA</h3>
+            <p>Cluster map, Moran scatter, and numerical summary.</p>
+          </div>
+          <div class="figure-grid" id="figures-bonus"></div>
+          <div id="text-bonus"></div>
+        </section>
+
+        <section class="content-section" id="interactive-embeds">
+          <div class="section-head">
+            <h3>Exported dashboards &amp; animation</h3>
+            <p>
+              Existing HTML exports are embedded below. If a frame is blank, open
+              the link in a new tab (some browsers block mixed content or file access).
+              The original <strong>Plotly Dash</strong> app is not embedded here because it needs a live
+              Python process — run <code>python scripts/bonus/bonus_dashboard.py</code> and open
+              <code>http://127.0.0.1:8050</code> for that experience.
+            </p>
+          </div>
+          <div id="interactive-host"></div>
+        </section>
+
+        <footer class="footer">
+          <p>
+            <strong>Run locally from the repository root:</strong>
+            <code>python -m http.server 8765</code>
+            then open
+            <a href="http://localhost:8765/webapp/">http://localhost:8765/webapp/</a>
+            so paths to <code>/outputs/</code> and <code>/asset/</code> resolve.
+            GeoMetric · educational geospatial atlas.
+          </p>
+        </footer>
+      </div>
+    </div>
+
+    <div
+      id="figure-lightbox"
+      class="figure-lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="figure-lightbox-caption"
+      aria-hidden="true"
+    >
+      <button type="button" class="figure-lightbox-backdrop" aria-label="Close enlarged figure"></button>
+      <div class="figure-lightbox-panel">
+        <button type="button" class="figure-lightbox-close" aria-label="Close">×</button>
+        <div class="figure-lightbox-imgwrap">
+          <img src="" alt="" decoding="async" />
+        </div>
+        <p id="figure-lightbox-caption" class="figure-lightbox-caption"></p>
+      </div>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" crossorigin="anonymous"></script>
+    <script src="../outputs/interactive/dashboards/dashboard_data.js"></script>
+    <script src="app.js"></script>
+    <script>
+      (function () {
+        var nl = document.getElementById("nav-logo");
+        if (nl)
+          nl.addEventListener("error", function () {
+            nl.style.display = "none";
+          });
+      })();
+    </script>
+  </body>
+</html>
