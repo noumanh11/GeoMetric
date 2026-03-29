@@ -294,7 +294,7 @@ def build_app():
     app = Dash(
         __name__,
         external_stylesheets=[dbc.themes.FLATLY],
-        title="GeoViz Dashboard",
+        title="GeoMetric Dashboard",
     )
 
     CHOROPLETH_VARS = {
@@ -313,7 +313,7 @@ def build_app():
                 [
                     dbc.Col(
                         html.H1(
-                            " GeoViz Project Dashboard",
+                            " GeoMetric Dashboard",
                             className="text-primary fw-bold my-3",
                         ),
                         width=10,
@@ -406,7 +406,7 @@ def build_app():
             html.Footer(
                 [
                     html.P(
-                        "GeoViz Project | Data: OWID, Natural Earth, OpenFlights, Berkeley Earth",
+                        "GeoMetric | Data: OWID, Natural Earth, OpenFlights, Berkeley Earth",
                         className="text-muted small text-center",
                     ),
                 ]

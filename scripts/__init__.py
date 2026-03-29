@@ -1,1 +1,1 @@
-# GeoViz Project
+# GeoMetric project

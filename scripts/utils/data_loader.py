@@ -566,7 +566,7 @@ def load_temperature():
 
 def download_all(force: bool = False):
     print("=" * 60)
-    print("  GeoViz Project — Dataset Downloader")
+    print("  GeoMetric — Dataset Downloader")
     print("=" * 60)
     download_shapefiles(force)
     download_emissions(force)
