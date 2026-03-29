@@ -5,12 +5,12 @@ PYTHON = $(VENV)/Scripts/python
 PIP = $(VENV)/Scripts/pip
 
 help:
-	@echo "GeoGeometric Project - Available Commands:"
+	@echo "GeoMetric — available commands:"
 	@echo "  make install  - Install Python dependencies"
 	@echo "  make data     - Download and preprocess all datasets"
 	@echo "  make run      - Run the complete execution pipeline"
 	@echo "  make run-fast - Run the pipeline in draft mode (150 DPI)"
-	@echo "  make run-bonus- Run only the bonus features"
+	@echo "  make run-bonus   Run only batch bonus HTML exports (animation + Moran)"
 	@echo "  make format   - Format code using Black"
 	@echo "  make lint     - Check code quality with flake8"
 	@echo "  make test     - Run pytest unit tests"

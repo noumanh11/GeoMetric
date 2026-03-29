@@ -372,7 +372,7 @@ def build_master_geodataframe() -> gpd.GeoDataFrame:
 
 def run():
     print("=" * 60)
-    print("  GeoViz Project — Preprocessing Pipeline")
+    print("  GeoMetric — Preprocessing Pipeline")
     print("=" * 60)
 
     process_world_shapefile()

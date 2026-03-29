@@ -1,7 +1,7 @@
 """
 config.py
 =========
-Central configuration for the GeoViz project.
+Central configuration for the GeoMetric project.
 All paths, projection strings, style settings, and dataset URLs
 are defined here so every script imports from one place.
 
